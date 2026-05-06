@@ -16,6 +16,8 @@
 
 package io.agentscope.runtime.lifecycle;
 
+import io.agentscope.runtime.autoconfigure.ClusterProperties;
+import io.agentscope.runtime.autoconfigure.DeployProperties;
 import io.agentscope.runtime.engine.Runner;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,10 +40,12 @@ import org.springframework.lang.NonNull;
  *       <li>Call before_start callback (if registered)</li>
  *       <li>Call init_handler (if registered via app.init())</li>
  *       <li>Initialize and start the Runner</li>
+ *       <li>Register to cluster (if enabled)</li>
  *     </ul>
  *   </li>
  *   <li>On shutdown (ContextClosedEvent):
  *     <ul>
+ *       <li>Deregister from cluster</li>
  *       <li>Stop the Runner</li>
  *       <li>Call shutdown_handler (if registered via app.shutdown())</li>
  *       <li>Call after_finish callback (if registered)</li>
@@ -58,16 +62,29 @@ public class RunnerStartListener implements
     private static final Logger logger = LoggerFactory.getLogger(RunnerStartListener.class);
     
     private final Runner runner;
+
+    private final ClusterProperties clusterProperties;
+
+    private final DeployProperties deployProperties;
+
+    private ClusterService clusterService;
+
     private boolean initialized = false;
     
     /**
      * Constructor with Runner dependency injection.
      * 
      * @param runner the Runner instance (optional, may be null if not configured)
+     * @param clusterProperties cluster configuration (optional)
+     * @param deployProperties deploy configuration (optional)
      */
     @Autowired(required = false)
-    public RunnerStartListener(Runner runner) {
+    public RunnerStartListener(Runner runner,
+            @Autowired(required = false) ClusterProperties clusterProperties,
+            @Autowired(required = false) DeployProperties deployProperties) {
         this.runner = runner;
+        this.clusterProperties = clusterProperties;
+        this.deployProperties = deployProperties;
     }
     
     /**
@@ -109,11 +126,27 @@ public class RunnerStartListener implements
                 throw e;
             }
 
+            // Register to cluster if enabled
+            if (clusterProperties != null && clusterProperties.isEnabled() && deployProperties != null) {
+                try {
+                    clusterService = new ClusterService(clusterProperties, deployProperties, runner);
+                    clusterService.register();
+                } catch (Exception e) {
+                    logger.warn("[AgentAppLifecycleListener] Failed to register to cluster: {}", e.getMessage());
+                    // Don't fail startup for cluster registration failures
+                }
+            }
             
         } catch (Exception e) {
             logger.error("[AgentAppLifecycleListener] Error during startup: {}", 
                 e.getMessage(), e);
         }
     }
-}
 
+    /**
+     * Get the cluster service for external access.
+     */
+    public ClusterService getClusterService() {
+        return clusterService;
+    }
+}

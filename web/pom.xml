@@ -54,6 +54,14 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- Cluster Core for service registration (optional) -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-cluster-core</artifactId>
+            <version>${project.version}</version>
+            <optional>true</optional>
+        </dependency>
+
         <!-- Spring Boot Web & Actuator -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

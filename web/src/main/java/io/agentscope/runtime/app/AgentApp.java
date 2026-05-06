@@ -35,6 +35,7 @@ import java.util.function.Function;
 
 import io.agentscope.runtime.LocalDeployManager;
 import io.agentscope.runtime.adapters.AgentHandler;
+import io.agentscope.runtime.autoconfigure.ClusterProperties;
 import io.agentscope.runtime.engine.DeployManager;
 import io.agentscope.runtime.engine.Runner;
 import io.agentscope.runtime.engine.services.agent_state.InMemoryStateService;
@@ -115,6 +116,7 @@ public class AgentApp {
 	private final List<AppLifecycleHook> hooks = new ArrayList<>();
 	private final AtomicBoolean stopped = new AtomicBoolean(false);
 	private List<ProtocolConfig> protocolConfigs;
+	private ClusterProperties clusterProperties;
 	private static final String DEFAULT_ENV_FILE_PATH = ".env";
 	private static final String CLASS_SUFFIX = ".class";
 	private static final String PROVIDER_SUFFIX = ".provider";
@@ -340,6 +342,47 @@ public class AgentApp {
 	}
 
 	/**
+	 * Configure cluster settings for Nacos service registration.
+	 *
+	 * <p>Usage example:</p>
+	 * <pre>{@code
+	 * app.cluster(true, "localhost:8848");
+	 * }</pre>
+	 *
+	 * @param enabled whether to enable cluster mode
+	 * @param nacosServerAddr Nacos server address (e.g., "localhost:8848")
+	 * @return this AgentApp instance for method chaining
+	 */
+	public AgentApp cluster(boolean enabled, String nacosServerAddr) {
+		return cluster(enabled, nacosServerAddr, "public", "DEFAULT_GROUP", null, null);
+	}
+
+	/**
+	 * Configure cluster settings with full Nacos configuration.
+	 *
+	 * @param enabled whether to enable cluster mode
+	 * @param nacosServerAddr Nacos server address
+	 * @param namespace Nacos namespace
+	 * @param group Nacos group
+	 * @param username Nacos username (optional)
+	 * @param password Nacos password (optional)
+	 * @return this AgentApp instance for method chaining
+	 */
+	public AgentApp cluster(boolean enabled, String nacosServerAddr, String namespace, 
+			String group, String username, String password) {
+		this.clusterProperties = new ClusterProperties();
+		this.clusterProperties.setEnabled(enabled);
+		ClusterProperties.NacosProperties nacos = new ClusterProperties.NacosProperties();
+		nacos.setServerAddr(nacosServerAddr);
+		nacos.setNamespace(namespace);
+		nacos.setGroup(group);
+		nacos.setUsername(username);
+		nacos.setPassword(password);
+		this.clusterProperties.setNacos(nacos);
+		return this;
+	}
+
+	/**
 	 * Configure Cross-Origin Resource Sharing (CORS).
 	 *
 	 * <p>Usage example:</p>
@@ -468,6 +511,7 @@ public class AgentApp {
 					.corsConfigurer(corsConfigurer)
 					.customEndpoints(customEndpoints)
 					.middlewares(middlewares)
+					.clusterProperties(clusterProperties)
 					.build();
 		}
 

@@ -36,20 +36,26 @@ public class RunnerShutdownListener implements ApplicationListener<ContextClosed
 
 	private final Runner runner;
 
+	private final RunnerStartListener startListener;
+
 	/**
 	 * Constructor with Runner dependency injection.
 	 *
 	 * @param runner the Runner instance (optional, may be null if not configured)
+	 * @param startListener the start listener to get cluster service
 	 */
 	@Autowired(required = false)
-	public RunnerShutdownListener(Runner runner) {
+	public RunnerShutdownListener(Runner runner,
+			@Autowired(required = false) RunnerStartListener startListener) {
 		this.runner = runner;
+		this.startListener = startListener;
 	}
 
 	/**
 	 * Handle application shutdown event.
 	 *
-	 * <p>It stops the runner, calls shutdown_handler, and then calls after_finish callback.</p>
+	 * <p>It deregisters from cluster, stops the runner, calls shutdown_handler,
+	 * and then calls after_finish callback.</p>
 	 *
 	 * @param event the context closed event
 	 */
@@ -60,6 +66,16 @@ public class RunnerShutdownListener implements ApplicationListener<ContextClosed
 			return;
 		}
 
+		// Deregister from cluster first
+		if (startListener != null && startListener.getClusterService() != null) {
+			try {
+				startListener.getClusterService().deregister();
+			}
+			catch (Exception e) {
+				logger.warn("[AgentAppShutdownListener] Failed to deregister from cluster: {}", e.getMessage());
+			}
+		}
+
 		if (runner == null) {
 			return;
 		}
@@ -67,7 +83,7 @@ public class RunnerShutdownListener implements ApplicationListener<ContextClosed
 		try {
 			logger.info("[AgentAppShutdownListener] Shutting down Runner...");
 
-			// Stop the runner first
+			// Stop the runner
 			try {
 				runner.stop();
 				runner.shutdown();

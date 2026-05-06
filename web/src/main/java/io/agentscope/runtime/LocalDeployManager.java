@@ -16,6 +16,7 @@
 package io.agentscope.runtime;
 
 import io.agentscope.runtime.app.AgentApp;
+import io.agentscope.runtime.autoconfigure.ClusterProperties;
 import io.agentscope.runtime.autoconfigure.DeployProperties;
 import io.agentscope.runtime.engine.DeployManager;
 import io.agentscope.runtime.engine.Runner;
@@ -60,6 +61,7 @@ public class LocalDeployManager implements DeployManager {
 	private final Consumer<CorsRegistry> corsConfigurer;
 	private final List<AgentApp.EndpointInfo> customEndpoints;
 	private final List<FilterRegistrationBean<? extends Filter>> middlewares;
+	private final ClusterProperties clusterProperties;
 
 
 	private LocalDeployManager(LocalDeployerManagerBuilder builder) {
@@ -71,6 +73,7 @@ public class LocalDeployManager implements DeployManager {
 		this.corsConfigurer = builder.corsConfigurer;
 		this.customEndpoints = builder.customEndpoints;
 		this.middlewares = builder.middlewares;
+		this.clusterProperties = builder.clusterProperties;
 	}
 
 	@Override
@@ -99,6 +102,10 @@ public class LocalDeployManager implements DeployManager {
 					ctx.registerBean(Runner.class, () -> runner);
 					// Register DeployProperties instance as a bean
 					ctx.registerBean(DeployProperties.class, () -> new DeployProperties(port, host, endpointName));
+					// Register ClusterProperties instance as a bean if provided
+					if (clusterProperties != null) {
+						ctx.registerBean(ClusterProperties.class, () -> clusterProperties);
+					}
 					// Scan additional packages based on protocols
 					ClassPathBeanDefinitionScanner scanner = new ClassPathBeanDefinitionScanner(ctx);
 					scanner.scan("io.agentscope.runtime.lifecycle");
@@ -210,6 +217,7 @@ public class LocalDeployManager implements DeployManager {
 		private Consumer<CorsRegistry> corsConfigurer;
 		private List<AgentApp.EndpointInfo> customEndpoints;
 		private List<FilterRegistrationBean<? extends Filter>> middlewares;
+		private ClusterProperties clusterProperties;
 
 		public LocalDeployerManagerBuilder endpointName(String endpointName) {
 			this.endpointName = endpointName;
@@ -248,6 +256,11 @@ public class LocalDeployManager implements DeployManager {
 
 		public LocalDeployerManagerBuilder middlewares(List<FilterRegistrationBean<? extends Filter>> middlewares) {
 			this.middlewares = middlewares;
+			return this;
+		}
+
+		public LocalDeployerManagerBuilder clusterProperties(ClusterProperties clusterProperties) {
+			this.clusterProperties = clusterProperties;
 			return this;
 		}
 

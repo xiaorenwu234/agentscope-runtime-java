@@ -1,0 +1,264 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  background: #0d0d1a;
+  color: #fff;
+  overflow: hidden;
+}
+
+.app-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 16px;
+  gap: 16px;
+}
+
+/* 标题栏 */
+.header {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  border-radius: 12px;
+  padding: 16px 24px;
+  border: 1px solid #333;
+}
+
+.header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo-icon {
+  margin-right: 12px;
+  font-size: 28px;
+}
+
+/* 主内容区 */
+.main-content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+}
+
+.main-content .ant-row {
+  height: 100%;
+}
+
+.main-content .ant-col {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 卡片样式 */
+.topology-card,
+.mode-card,
+.timeline-card {
+  flex: 1;
+  background: #1a1a2e !important;
+  border: 1px solid #333 !important;
+  border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.topology-card .ant-card-head,
+.mode-card .ant-card-head,
+.timeline-card .ant-card-head {
+  background: transparent;
+  border-bottom: 1px solid #333;
+  min-height: 48px;
+  padding: 0 16px;
+}
+
+.topology-card .ant-card-head-title,
+.mode-card .ant-card-head-title,
+.timeline-card .ant-card-head-title {
+  padding: 12px 0;
+}
+
+.topology-card {
+  height: 100%;
+}
+
+/* 控制面板 */
+.control-panel {
+  flex-shrink: 0;
+}
+
+/* Tabs 样式 */
+.ant-tabs-nav {
+  margin-bottom: 0 !important;
+}
+
+.ant-tabs-tab {
+  color: #888 !important;
+  padding: 8px 12px !important;
+}
+
+.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #667eea !important;
+}
+
+.ant-tabs-ink-bar {
+  background: #667eea !important;
+}
+
+/* Timeline 样式 */
+.ant-timeline {
+  padding-left: 8px;
+}
+
+.ant-timeline-item-content {
+  margin-left: 24px !important;
+}
+
+/* 滚动条样式 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1a1a2e;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ReactFlow 样式覆盖 */
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__controls {
+  background: #1a1a2e !important;
+  border: 1px solid #333 !important;
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+.react-flow__controls-button {
+  background: #1a1a2e !important;
+  border-bottom: 1px solid #333 !important;
+  fill: #888 !important;
+}
+
+.react-flow__controls-button:hover {
+  background: #333 !important;
+}
+
+/* 输入框样式 */
+.ant-input,
+.ant-input-textarea textarea {
+  background: #0d0d1a !important;
+  border-color: #333 !important;
+  color: #ccc !important;
+}
+
+.ant-input::placeholder,
+.ant-input-textarea textarea::placeholder {
+  color: #666 !important;
+}
+
+.ant-input:focus,
+.ant-input-textarea textarea:focus {
+  border-color: #667eea !important;
+  box-shadow: 0 0 0 2px rgba(102, 126, 234, 0.2) !important;
+}
+
+/* Button 样式 */
+.ant-btn {
+  border-radius: 8px !important;
+}
+
+/* Card 样式 */
+.ant-card {
+  background: #1a1a2e;
+}
+
+/* Tag 样式 */
+.ant-tag {
+  border-radius: 4px;
+}
+
+/* Modal 样式 */
+.ant-modal-content {
+  background: #1a1a2e !important;
+  border: 1px solid #333;
+}
+
+.ant-modal-header {
+  background: transparent !important;
+  border-bottom: 1px solid #333 !important;
+}
+
+.ant-modal-title {
+  color: #fff !important;
+}
+
+.ant-modal-close-x {
+  color: #888;
+}
+
+/* 响应式 */
+@media (max-width: 992px) {
+  .header-content {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  
+  .main-content {
+    overflow-y: auto;
+  }
+  
+  .topology-card,
+  .mode-card,
+  .timeline-card {
+    min-height: 300px;
+  }
+}
+
+/* 动画 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+.pulse {
+  animation: pulse 2s infinite;
+}
+
+/* 渐变背景动画 */
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+.gradient-bg {
+  background: linear-gradient(-45deg, #667eea, #764ba2, #11998e, #38ef7d);
+  background-size: 400% 400%;
+  animation: gradient 15s ease infinite;
+}
