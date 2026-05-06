@@ -66,8 +66,10 @@
         <module>sandbox-extensions/fc-extension</module>
         <module>sandbox-extensions/kubernetes-extension</module>
         <module>sandbox-extensions/redis-extension</module>
+        <module>agentscope-extensions-a2a</module>
         <module>maven_plugin</module>
         <module>examples/multi_agent_orchestration_example</module>
+        <module>spring-ai-alibaba-starter-a2a</module>
     </modules>
     <scm>
         <connection>git://github.com/agentscope-ai/agentscope-runtime-java.git</connection>
@@ -161,6 +163,11 @@
             <dependency>
                 <groupId>io.github.a2asdk</groupId>
                 <artifactId>a2a-java-sdk-client</artifactId>
+                <version>${a2a-sdk.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.a2asdk</groupId>
+                <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
                 <version>${a2a-sdk.version}</version>
             </dependency>
 
@@ -293,6 +300,11 @@
                         <artifactId>slf4j-simple</artifactId>
                     </exclusion>
                 </exclusions>
+            </dependency>
+            <dependency>
+                <groupId>io.agentscope</groupId>
+                <artifactId>agentscope-extensions-a2a-client</artifactId>
+                <version>${revision}</version>
             </dependency>
 
             <dependency>

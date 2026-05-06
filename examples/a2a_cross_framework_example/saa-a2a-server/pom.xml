@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.agentscope.examples</groupId>
+        <artifactId>a2a-cross-framework-example</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>saa-a2a-server</artifactId>
+    <name>SAA A2A Server</name>
+    <description>Spring AI Alibaba A2A Server Example</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-agent-framework</artifactId>
+            <version>1.1.2.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-server-common</artifactId>
+            <version>${a2a-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-spec</artifactId>
+            <version>${a2a-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
+            <version>${a2a-sdk.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-web</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-saa</artifactId>
+            <version>1.0.2</version>
+            <scope>compile</scope>
+            <!-- Exclude the legacy spring-ai-alibaba-core:1.0.0.4 which still uses the
+                 old AssistantMessage(String, Map, List) constructor removed in Spring AI 1.1.2,
+                 causing NoSuchMethodError at runtime. The 1.1.2.2 DashScopeChatModel is
+                 provided by spring-ai-alibaba-dashscope below. -->
+            <exclusions>
+                <exclusion>
+                    <groupId>com.alibaba.cloud.ai</groupId>
+                    <artifactId>spring-ai-alibaba-core</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <!-- Provides com.alibaba.cloud.ai.dashscope.chat.DashScopeChatModel;
+             version is managed by spring-ai-alibaba-bom (1.1.2.2). -->
+        <dependency>
+            <groupId>com.alibaba.cloud.ai</groupId>
+            <artifactId>spring-ai-alibaba-dashscope</artifactId>
+        </dependency>
+    </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Spring AI official BOM: aligns spring-ai-model/commons/... to 1.1.2
+                 to avoid NoSuchMethodError: AssistantMessage.builder() caused by
+                 transitive spring-ai-model:1.0.1 pulled in via spring-ai-alibaba-core:1.0.0.4 -->
+            <dependency>
+                <groupId>org.springframework.ai</groupId>
+                <artifactId>spring-ai-bom</artifactId>
+                <version>1.1.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <!-- Spring AI Alibaba BOM manages all Spring AI Alibaba artifact versions -->
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-bom</artifactId>
+                <version>1.1.2.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba.cloud.ai</groupId>
+                <artifactId>spring-ai-alibaba-extensions-bom</artifactId>
+                <version>1.1.2.2</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>${spring-boot.version}</version>
+            </plugin>
+        </plugins>
+    </build>
+</project>

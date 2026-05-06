@@ -183,7 +183,7 @@ public static class MyFilter implements Filter{
 **用法示例（客户端）**
 
 ```bash
-curl --location --request POST 'http://localhost:10001/a2a/' \
+curl --location --request POST 'http://localhost:8080/a2a/' \
 --header 'Content-Type: application/json' \
 --header 'Accept: */*' \
 --header 'Host: localhost:10001' \

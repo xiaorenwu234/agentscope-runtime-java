@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>io.agentscope.examples</groupId>
+        <artifactId>a2a-cross-framework-example</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>a2a-client-test</artifactId>
+    <name>A2A Client Test</name>
+    <description>A2A Client Test Application</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-extensions-a2a-client</artifactId>
+            <version>1.0.13-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-core</artifactId>
+            <version>1.0.13-SNAPSHOT</version>
+        </dependency>
+
+        <!-- A2A SDK dependencies -->
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-client</artifactId>
+            <version>0.3.2.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-spec</artifactId>
+            <version>0.3.2.Final</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
+            <version>0.3.2.Final</version>
+        </dependency>
+    </dependencies>
+
+    <repositories>
+        <repository>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>always</updatePolicy>
+            </snapshots>
+            <id>sonatype-snapshots</id>
+            <name>Sonatype Snapshot Repository</name>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+    </repositories>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <mainClass>io.agentscope.examples.client.A2aClientTest</mainClass>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
