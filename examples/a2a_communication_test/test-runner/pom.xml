@@ -6,13 +6,13 @@
 
     <parent>
         <groupId>io.agentscope.examples</groupId>
-        <artifactId>a2a-cross-framework-example</artifactId>
+        <artifactId>a2a-communication-test</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>a2a-client-test</artifactId>
-    <name>A2A Client Test</name>
-    <description>A2A Client Test Application</description>
+    <artifactId>test-runner</artifactId>
+    <name>Test Runner</name>
+    <description>A2A communication test runner - sync/async/error tests against 3-node 6-agent cluster</description>
 
     <dependencies>
         <dependency>
@@ -27,30 +27,57 @@
             <version>1.0.13-SNAPSHOT</version>
         </dependency>
 
-        <!-- Cluster core for NacosAgentCardResolver -->
         <dependency>
             <groupId>io.agentscope</groupId>
-            <artifactId>agentscope-runtime-cluster-core</artifactId>
+            <artifactId>agentscope-extensions-a2a-server</artifactId>
             <version>1.0.2</version>
         </dependency>
 
-        <!-- A2A SDK dependencies -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-web</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-engine</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-agentscope</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-client</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-spec</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.a2asdk</groupId>
+            <artifactId>a2a-java-sdk-server-common</artifactId>
+            <version>${a2a-sdk.version}</version>
         </dependency>
 
         <!-- SLF4J for logging -->
@@ -64,22 +91,21 @@
             <artifactId>slf4j-simple</artifactId>
             <version>2.0.9</version>
         </dependency>
-    </dependencies>
 
-    <repositories>
-        <repository>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
-            <id>sonatype-snapshots</id>
-            <name>Sonatype Snapshot Repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </repository>
-    </repositories>
+        <!-- Cluster Core for NacosAgentCardResolver -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-runtime-cluster-core</artifactId>
+            <version>1.0.2</version>
+        </dependency>
+
+        <!-- Nacos client -->
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+    </dependencies>
 
     <build>
         <plugins>
@@ -88,7 +114,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <mainClass>io.agentscope.examples.client.A2aClientTest</mainClass>
+                    <mainClass>io.agentscope.examples.test.A2aCommunicationTest</mainClass>
                 </configuration>
             </plugin>
         </plugins>

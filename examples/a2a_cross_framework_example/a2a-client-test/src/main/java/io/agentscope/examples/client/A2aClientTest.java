@@ -1,25 +1,16 @@
 package io.agentscope.examples.client;
 
 import io.agentscope.core.a2a.agent.A2aAgent;
-import io.agentscope.core.a2a.agent.card.WellKnownAgentCardResolver;
 import io.agentscope.core.message.Msg;
 import io.agentscope.core.message.MsgRole;
 import io.agentscope.core.message.TextBlock;
+import io.agentscope.runtime.cluster.nacos.NacosAgentCardResolver;
 import reactor.core.publisher.Flux;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
-/**
- * A2A Client Test Application.
- * 
- * <p>This application demonstrates how to use A2aAgent to communicate with different A2A servers:
- * 1. Spring AI Alibaba A2A Server (port 10002)
- * 2. AgentScope A2A Server (port 10001)
- * 
- * <p>The client discovers agent capabilities through AgentCard and communicates via A2A JSON-RPC protocol.</p>
- *
- * @author Agentscope Team
- */
 public class A2aClientTest {
 
     public static void main(String[] args) {
@@ -27,23 +18,96 @@ public class A2aClientTest {
         System.out.println("A2A Cross-Framework Client Test");
         System.out.println("========================================\n");
 
-        // Create A2A agents for both servers
-        A2aAgent saaAgent = createSaaAgent();
-        A2aAgent agentScopeAgent = createAgentScopeAgent();
-
+        // Get Nacos configuration from user
         Scanner scanner = new Scanner(System.in);
+        System.out.println("Configuring Nacos connection...");
+
+        String nacosServer = System.getenv().getOrDefault("NACOS_SERVER_ADDR",
+                System.getProperty("nacos.server.addr", "localhost:8848"));
+        String namespace = System.getenv().getOrDefault("NACOS_NAMESPACE",
+                System.getProperty("nacos.namespace", "public"));
+        String group = System.getenv().getOrDefault("NACOS_GROUP",
+                System.getProperty("nacos.group", "DEFAULT_GROUP"));
+        
+        // Discover services from Nacos
+        NacosAgentCardResolver nacosResolver = NacosAgentCardResolver.builder()
+                .serverAddr(nacosServer)
+                .namespace(namespace)
+                .group(group)
+                .relativeCardPath("/.well-known/agent.json")
+                .build();
+        
+        List<String> availableServices = nacosResolver.discoverServices();
+        
+        if (availableServices.isEmpty()) {
+            System.out.println("No services found in Nacos. Exiting.");
+            scanner.close();
+            return;
+        }
+        
+        // Display available services
+        System.out.println("\nAvailable services in Nacos:");
+        for (int i = 0; i < availableServices.size(); i++) {
+            System.out.println((i + 1) + ". " + availableServices.get(i));
+        }
+        
+        // Let user select which service(s) to use
+        System.out.println("\nSelect services to communicate with (comma-separated numbers, or 'all' for all):");
+        System.out.print("Your selection: ");
+        String selection = scanner.nextLine().trim();
+        
+        List<A2aAgent> selectedAgents = new ArrayList<>();
+        
+        if ("all".equalsIgnoreCase(selection)) {
+            // Create agents for all services
+            for (String serviceName : availableServices) {
+                selectedAgents.add(createAgentWithNacos(nacosResolver, serviceName));
+            }
+        } else {
+            // Parse selection and create agents for selected services
+            String[] selections = selection.split(",");
+            for (String sel : selections) {
+                try {
+                    int index = Integer.parseInt(sel.trim()) - 1;
+                    if (index >= 0 && index < availableServices.size()) {
+                        String serviceName = availableServices.get(index);
+                        selectedAgents.add(createAgentWithNacos(nacosResolver, serviceName));
+                    } else {
+                        System.out.println("Invalid selection: " + sel);
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Invalid number: " + sel);
+                }
+            }
+        }
+        
+        if (selectedAgents.isEmpty()) {
+            System.out.println("No valid services selected. Exiting.");
+            scanner.close();
+            return;
+        }
+        
+        System.out.println("\nSuccessfully created agents for " + selectedAgents.size() + " service(s).");
 
         while (true) {
             System.out.println("\nSelect a server to communicate with:");
-            System.out.println("1. Spring AI Alibaba A2A Server (port 10002)");
-            System.out.println("2. AgentScope A2A Server (port 10001)");
-            System.out.println("3. Test both servers with same message");
-            System.out.println("4. Exit");
-            System.out.print("Enter your choice (1-4): ");
+            for (int i = 0; i < selectedAgents.size(); i++) {
+                System.out.println((i + 1) + ". " + selectedAgents.get(i).getName());
+            }
+            System.out.println((selectedAgents.size() + 1) + ". Test all selected servers with same message");
+            System.out.println((selectedAgents.size() + 2) + ". Exit");
+            System.out.print("Enter your choice (1-" + (selectedAgents.size() + 2) + "): ");
 
             String choice = scanner.nextLine();
+            int choiceNum;
+            try {
+                choiceNum = Integer.parseInt(choice);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid choice. Please try again.");
+                continue;
+            }
 
-            if ("4".equals(choice)) {
+            if (choiceNum == selectedAgents.size() + 2) {
                 System.out.println("Goodbye!");
                 break;
             }
@@ -52,24 +116,20 @@ public class A2aClientTest {
             String message = scanner.nextLine();
 
             try {
-                switch (choice) {
-                    case "1":
-                        System.out.println("\n>>> Sending to SAA A2A Server...");
-                        callAgent(saaAgent, message);
-                        break;
-                    case "2":
-                        System.out.println("\n>>> Sending to AgentScope A2A Server...");
-                        callAgent(agentScopeAgent, message);
-                        break;
-                    case "3":
-                        System.out.println("\n>>> Sending to both servers...");
-                        System.out.println("\n--- SAA A2A Server Response ---");
-                        callAgent(saaAgent, message);
-                        System.out.println("\n--- AgentScope A2A Server Response ---");
-                        callAgent(agentScopeAgent, message);
-                        break;
-                    default:
-                        System.out.println("Invalid choice. Please try again.");
+                if (choiceNum == selectedAgents.size() + 1) {
+                    // Test all selected servers
+                    System.out.println("\n>>> Sending to all selected servers...");
+                    for (A2aAgent agent : selectedAgents) {
+                        System.out.println("\n--- " + agent.getName() + " Response ---");
+                        callAgent(agent, message);
+                    }
+                } else if (choiceNum >= 1 && choiceNum <= selectedAgents.size()) {
+                    // Call specific agent
+                    A2aAgent agent = selectedAgents.get(choiceNum - 1);
+                    System.out.println("\n>>> Sending to " + agent.getName() + "...");
+                    callAgent(agent, message);
+                } else {
+                    System.out.println("Invalid choice. Please try again.");
                 }
             } catch (Exception e) {
                 System.err.println("Error: " + e.getMessage());
@@ -80,40 +140,19 @@ public class A2aClientTest {
         scanner.close();
     }
 
+
     /**
-     * Create A2aAgent for Spring AI Alibaba Server.
+     * Create A2aAgent with Nacos discovery for a specific service.
      */
-    private static A2aAgent createSaaAgent() {
-        System.out.println("Creating A2aAgent for SAA Server (http://localhost:10002)...");
-        
-        // Use WellKnownAgentCardResolver to auto-discover agent capabilities
-        WellKnownAgentCardResolver cardResolver = WellKnownAgentCardResolver.builder()
-                .baseUrl("http://localhost:10002")
-                .relativeCardPath("/.well-known/agent.json")
-                .build();
+    private static A2aAgent createAgentWithNacos(NacosAgentCardResolver nacosResolver, String serviceName) {
+        System.out.println("Creating A2aAgent with Nacos discovery for service: " + serviceName);
 
         return A2aAgent.builder()
-                .name("saa-assistant")
-                .agentCardResolver(cardResolver)
+                .name(serviceName)
+                .agentCardResolver(nacosResolver)
                 .build();
     }
 
-    /**
-     * Create A2aAgent for AgentScope Server.
-     */
-    private static A2aAgent createAgentScopeAgent() {
-        System.out.println("Creating A2aAgent for AgentScope Server (http://localhost:10001)...");
-        
-        WellKnownAgentCardResolver cardResolver = WellKnownAgentCardResolver.builder()
-                .baseUrl("http://localhost:10001")
-                .relativeCardPath("/.well-known/agent.json")
-                .build();
-
-        return A2aAgent.builder()
-                .name("agentscope-assistant")
-                .agentCardResolver(cardResolver)
-                .build();
-    }
 
     /**
      * Call agent with streaming response.

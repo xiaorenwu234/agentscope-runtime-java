@@ -35,7 +35,7 @@ public class MySaaAgentHandler extends AgentScopeAgentHandler {
     }
 
     @Override
-    public Flux<io.agentscope.core.agent.Event> streamQuery(AgentRequest request, Object messages) {
+    public Flux<Event> streamQuery(AgentRequest request, Object messages) {
         String sessionId = request.getSessionId();
         String userId = request.getUserId();
 

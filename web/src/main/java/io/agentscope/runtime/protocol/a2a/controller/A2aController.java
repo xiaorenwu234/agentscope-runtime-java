@@ -16,6 +16,7 @@
 
 package io.agentscope.runtime.protocol.a2a.controller;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import io.a2a.server.ServerCallContext;
@@ -72,7 +73,7 @@ public class A2aController {
             }
         } catch (JsonProcessingException e) {
             logger.error("JSON parsing error: {}", e.getMessage());
-            result = new JSONRPCErrorResponse(null, new JSONParseError());
+            result = handleError(e);
         }
         return result;
     }
@@ -167,6 +168,26 @@ public class A2aController {
             headers.put(headerName, headerValue);
         }
         return new ServerCallContext(null, state, new HashSet<>());
+    }
+
+    private JSONRPCErrorResponse handleError(JsonProcessingException exception) {
+        Object id = null;
+        JSONRPCError jsonRpcError;
+        if (exception instanceof JsonParseException) {
+            jsonRpcError = new JSONParseError(exception.getMessage());
+        } else if (exception instanceof MethodNotFoundJsonMappingException err) {
+            id = err.getId();
+            jsonRpcError = new MethodNotFoundError();
+        } else if (exception instanceof InvalidParamsJsonMappingException err) {
+            id = err.getId();
+            jsonRpcError = new InvalidParamsError();
+        } else if (exception instanceof IdJsonMappingException err) {
+            id = err.getId();
+            jsonRpcError = new InvalidRequestError();
+        } else {
+            jsonRpcError = new InvalidRequestError();
+        }
+        return new JSONRPCErrorResponse(id, jsonRpcError);
     }
 
     private JSONRPCErrorResponse generateErrorResponse(JSONRPCRequest<?> request, JSONRPCError error) {

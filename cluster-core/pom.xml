@@ -29,6 +29,13 @@
     <description>Cluster core module for service registration and discovery</description>
 
     <dependencies>
+        <!-- A2A Client for AgentCardResolver integration -->
+        <dependency>
+            <groupId>io.agentscope</groupId>
+            <artifactId>agentscope-extensions-a2a-client</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
         <!-- Nacos Client for service registration and discovery -->
         <dependency>
             <groupId>com.alibaba.nacos</groupId>

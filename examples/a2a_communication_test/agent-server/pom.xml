@@ -6,13 +6,13 @@
 
     <parent>
         <groupId>io.agentscope.examples</groupId>
-        <artifactId>a2a-cross-framework-example</artifactId>
+        <artifactId>a2a-communication-test</artifactId>
         <version>1.0.0</version>
     </parent>
 
-    <artifactId>agentscope-a2a-server</artifactId>
-    <name>AgentScope A2A Server</name>
-    <description>AgentScope A2A Server Example</description>
+    <artifactId>agent-server</artifactId>
+    <name>Agent Server (Reusable)</name>
+    <description>Reusable A2A Agent server that can be launched with different ports and names</description>
 
     <dependencies>
         <dependency>
@@ -32,24 +32,24 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
-        <!-- A2A SDK - 使用与 agentscope-extensions-a2a-server 兼容的版本 -->
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-server-common</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-spec</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
         </dependency>
 
         <dependency>
             <groupId>io.github.a2asdk</groupId>
             <artifactId>a2a-java-sdk-transport-jsonrpc</artifactId>
-            <version>0.3.2.Final</version>
+            <version>${a2a-sdk.version}</version>
         </dependency>
+
         <dependency>
             <groupId>io.agentscope</groupId>
             <artifactId>agentscope-runtime-engine</artifactId>
@@ -69,19 +69,18 @@
             <scope>compile</scope>
         </dependency>
 
-        <!-- Nacos client for service registration -->
-        <dependency>
-            <groupId>com.alibaba.nacos</groupId>
-            <artifactId>nacos-client</artifactId>
-            <version>2.3.2</version>
-        </dependency>
-
-        <!-- Cluster core for NacosAgentRegistry -->
+        <!-- Cluster Core for Nacos service registration -->
         <dependency>
             <groupId>io.agentscope</groupId>
             <artifactId>agentscope-runtime-cluster-core</artifactId>
             <version>1.0.2</version>
-            <scope>compile</scope>
+        </dependency>
+
+        <!-- Nacos client -->
+        <dependency>
+            <groupId>com.alibaba.nacos</groupId>
+            <artifactId>nacos-client</artifactId>
+            <version>2.3.2</version>
         </dependency>
     </dependencies>
 
@@ -91,6 +90,16 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>${spring-boot.version}</version>
+                <configuration>
+                    <mainClass>io.agentscope.examples.server.AgentServerApplication</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
