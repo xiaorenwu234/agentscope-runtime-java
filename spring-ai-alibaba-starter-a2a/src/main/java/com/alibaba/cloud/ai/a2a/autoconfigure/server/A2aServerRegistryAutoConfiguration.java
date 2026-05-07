@@ -16,14 +16,11 @@
 
 package com.alibaba.cloud.ai.a2a.autoconfigure.server;
 
-import com.alibaba.cloud.ai.a2a.core.registry.AgentRegistry;
-import com.alibaba.cloud.ai.a2a.core.registry.AgentRegistryService;
 import com.alibaba.cloud.ai.a2a.core.route.MultiAgentRequestRouter;
 
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
-import org.springframework.context.annotation.Bean;
 
 import io.a2a.spec.AgentCard;
 
@@ -41,12 +38,5 @@ import io.a2a.spec.AgentCard;
 @ConditionalOnBean({ AgentCard.class })
 @ConditionalOnMissingBean(MultiAgentRequestRouter.class)
 public class A2aServerRegistryAutoConfiguration {
-
-	@Bean
-	@ConditionalOnBean(AgentRegistry.class)
-	@ConditionalOnMissingBean(AgentRegistryService.class)
-	public AgentRegistryService agentRegistryService(AgentCard agentCard, AgentRegistry agentRegistry) {
-		return new AgentRegistryService(agentRegistry, agentCard);
-	}
 
 }

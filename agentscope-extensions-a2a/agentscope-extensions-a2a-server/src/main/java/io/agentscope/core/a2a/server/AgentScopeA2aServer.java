@@ -29,8 +29,7 @@ import io.agentscope.core.a2a.server.executor.AgentExecuteProperties;
 import io.agentscope.core.a2a.server.executor.AgentScopeAgentExecutor;
 import io.agentscope.core.a2a.server.executor.runner.AgentRunner;
 import io.agentscope.core.a2a.server.executor.runner.ReActAgentWithBuilderRunner;
-import io.agentscope.core.a2a.server.registry.AgentRegistry;
-import io.agentscope.core.a2a.server.registry.AgentRegistryService;
+
 import io.agentscope.core.a2a.server.request.AgentScopeA2aRequestHandler;
 import io.agentscope.core.a2a.server.transport.DeploymentProperties;
 import io.agentscope.core.a2a.server.transport.TransportProperties;
@@ -39,8 +38,6 @@ import io.agentscope.core.a2a.server.transport.TransportWrapperBuilder;
 import io.agentscope.core.agent.Agent;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.Set;
@@ -90,17 +87,15 @@ public class AgentScopeA2aServer {
 
     private final AgentCard agentCard;
 
-    private final AgentRegistryService agentRegistry;
+
 
     private AgentScopeA2aServer(
             Map<String, TransportWrapper> transportWrappers,
             Set<TransportProperties> transportProperties,
-            AgentCard agentCard,
-            AgentRegistryService agentRegistry) {
+            AgentCard agentCard) {
         this.transportWrappers = transportWrappers;
         this.transportProperties = transportProperties;
         this.agentCard = agentCard;
-        this.agentRegistry = agentRegistry;
     }
 
     /**
@@ -155,11 +150,10 @@ public class AgentScopeA2aServer {
     /**
      * Call this method when all endpoint ready to access.
      *
-     * <p>By default, it should be called after web server ready or other network endpoint ready. To let AgentScope end
-     * some A2A Server operation such as register A2A Registry,
+     * <p>By default, it should be called after web server ready or other network endpoint ready.
      */
     public void postEndpointReady() {
-        agentRegistry.register(agentCard, transportProperties);
+        // Registry functionality has been removed.
     }
 
     /**
@@ -191,8 +185,6 @@ public class AgentScopeA2aServer {
 
         private final Set<TransportProperties> supportedTransports;
 
-        private final List<AgentRegistry> agentRegistries;
-
         private ConfigurableAgentCard agentCard;
 
         private TaskStore taskStore;
@@ -212,7 +204,6 @@ public class AgentScopeA2aServer {
         private Builder(AgentRunner agentRunner) {
             this.agentRunner = agentRunner;
             this.supportedTransports = new HashSet<>();
-            this.agentRegistries = new LinkedList<>();
         }
 
         /**
@@ -324,16 +315,7 @@ public class AgentScopeA2aServer {
             return this;
         }
 
-        /**
-         * Add {@link AgentRegistry} implementation which should register this agent to registry.
-         *
-         * @param agentRegistry agent registry implementation
-         * @return builder instance of {@link AgentScopeA2aServer}
-         */
-        public Builder withAgentRegistry(AgentRegistry agentRegistry) {
-            this.agentRegistries.add(agentRegistry);
-            return this;
-        }
+
 
         /**
          * Set agent execute properties.
@@ -354,7 +336,6 @@ public class AgentScopeA2aServer {
          *     <li>Build {@link AgentCard} from input agent card properties and transports properties.</li>
          *     <li>Build AgentExecutor with input {@link AgentRunner} and build RequestHandler.</li>
          *     <li>Build all transport request handle wrapper by input properties and SPI load transport builders</li>
-         *     <li>Build {@link AgentRegistryService} from input {@link AgentRegistry}.</li>
          * </ul>
          *
          * @return a new instance of {@link AgentScopeA2aServer}
@@ -412,9 +393,8 @@ public class AgentScopeA2aServer {
             if (transportWrappers.isEmpty()) {
                 log.warn("No one TransportWrapper actually, a2a request will not be handle.");
             }
-            AgentRegistryService agentRegistryService = new AgentRegistryService(agentRegistries);
             return new AgentScopeA2aServer(
-                    transportWrappers, availableTransports, a2aAgentCard, agentRegistryService);
+                    transportWrappers, availableTransports, a2aAgentCard);
         }
 
         private Map<String, TransportWrapperBuilder> loadTransportBuilders() {

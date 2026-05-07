@@ -19,10 +19,8 @@ package io.agentscope.core.a2a.server;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import io.a2a.server.events.QueueManager;
@@ -36,7 +34,7 @@ import io.agentscope.core.ReActAgent;
 import io.agentscope.core.a2a.server.card.ConfigurableAgentCard;
 import io.agentscope.core.a2a.server.executor.AgentExecuteProperties;
 import io.agentscope.core.a2a.server.executor.runner.AgentRunner;
-import io.agentscope.core.a2a.server.registry.AgentRegistry;
+
 import io.agentscope.core.a2a.server.transport.DeploymentProperties;
 import io.agentscope.core.a2a.server.transport.TransportProperties;
 import io.agentscope.core.a2a.server.transport.TransportWrapper;
@@ -260,21 +258,6 @@ class AgentScopeA2aServerTest {
             assertSame(builder, result);
             assertNotNull(builder.build());
         }
-
-        @Test
-        @DisplayName("Should add agent registry")
-        void testWithAgentRegistry() throws Exception {
-            AgentRegistry agentRegistry = mock(AgentRegistry.class);
-
-            AgentScopeA2aServer.Builder builder =
-                    AgentScopeA2aServer.builder(agentRunner)
-                            .deploymentProperties(deploymentProperties);
-            AgentScopeA2aServer.Builder result = builder.withAgentRegistry(agentRegistry);
-
-            assertSame(builder, result);
-            builder.build().postEndpointReady();
-            verify(agentRegistry).register(any(), any());
-        }
     }
 
     @Nested
@@ -291,7 +274,6 @@ class AgentScopeA2aServerTest {
             PushNotificationConfigStore pushConfigStore = mock(PushNotificationConfigStore.class);
             PushNotificationSender pushSender = mock(PushNotificationSender.class);
             Executor executor = mock(Executor.class);
-            AgentRegistry agentRegistry = mock(AgentRegistry.class);
 
             AgentScopeA2aServer.Builder builder = AgentScopeA2aServer.builder(agentRunner);
             AgentScopeA2aServer.Builder result =
@@ -303,10 +285,7 @@ class AgentScopeA2aServerTest {
                             .pushSender(pushSender)
                             .executor(executor)
                             .deploymentProperties(deploymentProperties)
-                            .agentExecuteProperties(AgentExecuteProperties.builder().build())
-                            .withAgentRegistry(agentRegistry);
-
-            assertNotNull(result);
+                            .agentExecuteProperties(AgentExecuteProperties.builder().build());
             assertSame(builder, result);
         }
     }

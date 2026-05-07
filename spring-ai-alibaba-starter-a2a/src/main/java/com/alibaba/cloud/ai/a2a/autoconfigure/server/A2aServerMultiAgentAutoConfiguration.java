@@ -25,8 +25,7 @@ import com.alibaba.cloud.ai.a2a.autoconfigure.A2aMultiAgentProperties;
 import com.alibaba.cloud.ai.a2a.autoconfigure.A2aServerProperties;
 import com.alibaba.cloud.ai.a2a.autoconfigure.server.condition.OnMultiAgentModeCondition;
 import com.alibaba.cloud.ai.a2a.core.constants.A2aConstants;
-import com.alibaba.cloud.ai.a2a.core.registry.AgentRegistry;
-import com.alibaba.cloud.ai.a2a.core.registry.AgentRegistryService;
+
 import com.alibaba.cloud.ai.a2a.core.route.MultiAgentJsonRpcRouterProvider;
 import com.alibaba.cloud.ai.a2a.core.route.MultiAgentRequestRouter;
 import com.alibaba.cloud.ai.a2a.core.server.A2aServerExecutorProvider;
@@ -40,7 +39,6 @@ import com.alibaba.cloud.ai.graph.agent.a2a.A2aRemoteAgent;
 
 import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -183,12 +181,7 @@ public class A2aServerMultiAgentAutoConfiguration {
 		return agentCards;
 	}
 
-	@Bean
-	@ConditionalOnBean(AgentRegistry.class)
-	public AgentRegistryService multiAgentRegistryService(List<AgentCard> multiAgentCards,
-			AgentRegistry agentRegistry) {
-		return new AgentRegistryService(agentRegistry, multiAgentCards);
-	}
+
 
 	@Bean
 	@ConditionalOnProperty(prefix = A2aServerProperties.CONFIG_PREFIX, value = "type",
